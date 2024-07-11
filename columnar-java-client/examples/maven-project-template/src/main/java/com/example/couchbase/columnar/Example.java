@@ -21,7 +21,7 @@ import com.couchbase.columnar.client.java.Credential;
 import com.couchbase.columnar.client.java.QueryResult;
 import com.couchbase.columnar.client.java.internal.Certificates;
 
-import java.util.List;
+import static java.util.Collections.singletonList;
 
 public class Example {
   public static void main(String[] args) {
@@ -43,7 +43,7 @@ public class Example {
         "select ?=1",
         options -> options
           .readOnly(true)
-          .parameters(List.of(1))
+          .parameters(singletonList(1))
       );
       result.rows().forEach(row -> System.out.println("Got row: " + row));
 
@@ -56,7 +56,7 @@ public class Example {
         row -> System.out.println("Got row: " + row),
         options -> options
           .readOnly(true)
-          .parameters(List.of(1))
+          .parameters(singletonList(1))
       );
     }
   }
