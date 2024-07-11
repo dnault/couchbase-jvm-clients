@@ -25,9 +25,9 @@ import static java.util.Collections.singletonList;
 
 public class Example {
   public static void main(String[] args) {
-    var connectionString = "couchbases://...";
-    var username = "...";
-    var password = "...";
+    String connectionString = "couchbases://...";
+    String username = "...";
+    String password = "...";
 
     try (Cluster cluster = Cluster.newInstance(
       connectionString,
