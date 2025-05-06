@@ -190,6 +190,8 @@ public class UnmanagedTestCluster extends TestCluster {
       Certificate cert = cf.generateCertificate(new ByteArrayInputStream(raw.getBytes(UTF_8)));
       return Optional.of(Collections.singletonList((X509Certificate) cert));
     } catch (Exception ex) {
+      System.out.println("*** Failed to load certificate from " + baseUrl + "/pools/default/certificate");
+      ex.printStackTrace();
       // could not load certificate, maybe add logging? could be CE instance.
       return Optional.empty();
     }
