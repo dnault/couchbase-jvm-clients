@@ -1,0 +1,66 @@
+name: CBDB sandbox
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: CBDC sandbox
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - server: 'community-7.6.2'
+          - server: '7.6.5'
+
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Select Couchbase services
+        run: |
+          if [[ "${{ matrix.server }}" == *community* ]]; then
+            echo 'CB_SERVICES=[kv, n1ql, index, fts]' >> $GITHUB_ENV
+          else
+            echo 'CB_SERVICES=[kv, n1ql, index, fts, cbas, eventing]' >> $GITHUB_ENV
+          fi
+
+      - id: cbdc
+        uses: ./.github/actions/cbdinocluster
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          def: |
+            nodes:
+              - count: 3
+                version: 7.6.5
+                services: ${{ env.CB_SERVICES }}
+            docker:
+              kv-memory: 1024
+
+      - name: Print cluster properties
+        run: |
+          echo the cluster ID is "$CLUSTER_ID"
+          echo the connection string is "$CONNSTR"
+          echo the management url is "$MGMT"
+        env:
+          CLUSTER_ID: ${{ steps.cbdc.outputs.cluster-id }}
+          CONNSTR: ${{ steps.cbdc.outputs.connstr }}
+          MGMT: ${{ steps.cbdc.outputs.mgmt }}
+
+      - name: Print cluster root certificate
+        run: curl ${{ steps.cbdc.outputs.mgmt }}/pools/default/certificate
+
+      - name: Print cluster root certificate
+        run: curl ${{ steps.cbdc.outputs.mgmt }}/pools/default/trustedCAs
+
+#      - name: print ca file
+#        run: cat ${{ steps.cbdc.outputs.ca-certs-file }}
+
+      - name: Print pools/default
+        run: curl -uAdministrator:password ${{ steps.cbdc.outputs.mgmt }}/pools/default
+
+#      - name: Print node certificate info
+#        run: openssl s_client -showcerts -connect 172.17.0.2:18091 </dev/null
