@@ -1,0 +1,86 @@
+name: Run Integration Tests
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+on:
+#  push:
+#    branches:
+#      - master
+#  pull_request:
+  workflow_dispatch:
+
+
+jobs:
+  test:
+    name: Integration Test
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install cbdinocluster
+        run: |
+          mkdir -p "$HOME/bin"
+          wget -nv -O $HOME/bin/cbdinocluster https://github.com/couchbaselabs/cbdinocluster/releases/download/v0.0.68/cbdinocluster-linux-amd64
+          chmod +x $HOME/bin/cbdinocluster
+          echo "$HOME/bin" >> $GITHUB_PATH
+      - name: Initialize cbdinocluster
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cbdinocluster -v init --auto
+      - name: Start couchbase cluster
+        env:
+          CLUSTERCONFIG: |
+            nodes:
+              - count: 1
+                version: 7.6.5              
+            docker:
+              kv-memory: 2048
+        run: |
+          CBDC_ID=$(cbdinocluster -v alloc --def="${CLUSTERCONFIG}")
+          CBDC_CONNSTR=$(cbdinocluster -v connstr $CBDC_ID)
+          CBDC_MGMT=$(cbdinocluster -v mgmt $CBDC_ID)
+          MGMT_ADDR=${CBDC_MGMT#*://}
+          echo "CBDC_ID=$CBDC_ID" >> "$GITHUB_ENV"
+          echo "CBDC_CONNSTR=$CBDC_CONNSTR" >> "$GITHUB_ENV"
+          echo "MGMT_ADDR=$MGMT_ADDR" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Compile tests
+        run: |
+          make deps-only
+          ./mvnw --batch-mode clean test-compile install -DskipTests
+
+      - name: Configure tests
+        run: |
+          cat <<EOF > integration.properties.template
+          cluster.type=unmanaged
+          cluster.adminUsername=Administrator
+          cluster.adminPassword=password
+          cluster.unmanaged.seed=${{ env.MGMT_ADDR }}
+          cluster.unmanaged.numReplicas=0
+          EOF
+          find . -type f -name "integration.properties" -exec cp -v ./integration.properties.template {} \;
+
+#      - name: Run core-io tests
+#        timeout-minutes: 40
+#        run: |
+#          ./mvnw  --batch-mode -Dmaven.test.failure.ignore=true --file core-io/pom.xml verify
+
+      - name: Run tests
+        timeout-minutes: 40
+        run: ./mvnw --batch-mode -Dmaven.test.failure.ignore=true verify
+
+      - name: JUnit Report Action
+        uses: mikepenz/action-junit-report@v5
+        with:
+          report_paths: '**/target/surefire-reports/TEST-*.xml'
+          fail_on_failure: true
+          fail_on_parse_error: true
+          require_passed_tests: true
