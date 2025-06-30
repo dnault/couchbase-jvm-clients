@@ -36,5 +36,5 @@ jobs:
 
       - name: Sandbox
         run: |
-          echo hello ${{ matrix.foo }} world
+          echo hello ${{ matrix.foo || "wonderful" }} world
     
