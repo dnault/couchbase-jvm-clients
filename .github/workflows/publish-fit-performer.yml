@@ -8,9 +8,11 @@ on:
     branches:
       - 'master'
       - '3.[0-9]+.x'
+    tags:
+      - '**' # Matches all tag names, including hierarchical ones (e.g., v1.0/beta)
 
 jobs:
-  publish-performer:
+  publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
