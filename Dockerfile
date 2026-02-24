@@ -20,7 +20,7 @@ RUN mvn $MVN_FLAGS -f core-io-deps/pom.xml clean install
 RUN mvn $MVN_FLAGS -f tracing-opentelemetry-deps/pom.xml clean install
 
 # As an optmization, pre-build common modules so Docker can cache this layer too.
-RUN mvn $MVN_FLAGS install -Pfit --projects core-io,core-fit-performer --also-make
+#RUN mvn $MVN_FLAGS install -Pfit --projects core-io,core-fit-performer --also-make
 
 # Defer declaring the ARG until first use, so the previous layers can be cached between SDKs
 ARG SDK
