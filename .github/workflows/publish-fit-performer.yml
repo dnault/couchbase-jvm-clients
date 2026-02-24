@@ -1,13 +1,14 @@
 name: Publish FIT performer
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
 on:
   push:
     branches: ['master']
 
-# Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
-
 jobs:
-  build-and-push-image:
+  publish-performer:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -51,6 +52,8 @@ jobs:
         with:
           context: .
           build-args: SDK=${{ matrix.sdk }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
