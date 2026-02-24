@@ -29,6 +29,14 @@ jobs:
       IMAGE_NAME: ${{ github.repository_owner }}/${{ matrix.sdk }}-fit-performer
 
     steps:
+      - name: Delete old packages
+        uses: actions/delete-package-versions@v5
+        with:
+          package-type: 'container'
+          package-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          delete-only-untagged-versions: 'true'
+          min-versions-to-keep: 10
+
       - name: Checkout repository
         uses: actions/checkout@v5
 
@@ -74,11 +82,4 @@ jobs:
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
-      - name: Delete old packages
-        uses: actions/delete-package-versions@v5
-        with:
-          package-type: 'container'
-          package-name: ${{ env.IMAGE_NAME }}
-          delete-only-untagged-versions: 'true'
-          min-versions-to-keep: 10
 
