@@ -1,6 +1,6 @@
 name: Publish FIT performer from PR
 
-run-name: Publish ${{ inputs.sdk }} @ ${{ inputs.ref }}
+run-name: "Publish ${{ inputs.sdk }}-fit-performer:${{ inputs.ref }}"
 
 on:
   workflow_dispatch:
@@ -68,7 +68,7 @@ jobs:
           labels: |
             org.opencontainers.image.source=${{ env.GERRIT_REPO_URL }}
             org.opencontainers.image.revision=${{ env.COMMIT_HASH }}
-            com.couchbase.github.actions.run=https://github.com/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}
+            com.couchbase.github.actions.run=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           flavor: |
             latest=false
 
