@@ -1,11 +1,11 @@
-# A Docker image for the FIT performers.
-# Build from project root with:
-#   docker build . --build-arg SDK=<sdk> -t performer
+# A Docker image for the Couchbase JVM SDK FIT performers.
+# To build:
+#   docker build . --build-arg SDK=<sdk>
 #
-# Run with:
-#   docker run -e LOG_LEVEL=DEBUG -p 8060:8060 performer
+# To run:
+#   docker run -e LOG_LEVEL=DEBUG -p 8060:8060
 
-# Valid SDK values: java, scala, kotlin
+# Valid SDK values: java, scala, kotlin, columnar-java
 ARG SDK=java
 
 FROM maven:3.9.6-eclipse-temurin-21 AS build
@@ -19,20 +19,19 @@ RUN mvn $MVN_FLAGS -f protostellar/pom.xml clean install
 RUN mvn $MVN_FLAGS -f core-io-deps/pom.xml clean install
 RUN mvn $MVN_FLAGS -f tracing-opentelemetry-deps/pom.xml clean install
 
-# As an optmization, pre-build common modules so Docker can cache this layer too.
-#RUN mvn $MVN_FLAGS install -Pfit --projects core-io,core-fit-performer --also-make
-
 # Defer declaring the ARG until first use, so the previous layers can be cached between SDKs
 ARG SDK
 RUN mvn $MVN_FLAGS package -Pfit --projects ${SDK}-fit-performer --also-make
 
 # Multistage build to keep things small
-FROM eclipse-temurin:21-jre-ubi9-minimal
+FROM eclipse-temurin:21-jre-ubi10-minimal
 
 WORKDIR /app
-# Default level; override with docker run -e LOG_LEVEL=DEBUG
-ENV LOG_LEVEL=INFO
 
 ARG SDK
-COPY --from=build /app/couchbase-jvm-clients/${SDK}-fit-performer/target/fit-performer-${SDK}-1.0-SNAPSHOT-jar-with-dependencies.jar performer.jar
+COPY --from=build /app/couchbase-jvm-clients/${SDK}-fit-performer/target/${SDK}-fit-performer-1.0-SNAPSHOT-jar-with-dependencies.jar performer.jar
+
+ENV LOG_LEVEL=INFO
+EXPOSE 8060
+
 ENTRYPOINT ["java", "-jar", "performer.jar"]
