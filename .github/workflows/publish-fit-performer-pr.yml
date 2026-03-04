@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Set IMAGE_TAG from ref (replace slashes with dashes)
         run: |      
-          REF="${{ inputs.ref }}"
+          REF="${{ trim(inputs.ref) }}"
           IMAGE_TAG="${REF//\//-}"
           echo "Image tag will be $IMAGE_TAG" 
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
