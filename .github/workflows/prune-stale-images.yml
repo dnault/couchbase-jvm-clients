@@ -1,4 +1,4 @@
-name: Publish FIT performer on demand
+name: Prune stale FIT performer images
 
 on:
   workflow_dispatch:
