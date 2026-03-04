@@ -1,0 +1,67 @@
+name: Publish FIT performer from PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        type: string
+        description: "Gerrit patch set ref, like: refs/changes/58/240858/6"
+        required: true
+
+      # Could use a matrix to build them all, but probably only care about one.
+      sdk:
+        type: choice
+        description: SDK
+        required: true
+        options:
+          - java
+          - scala
+          - kotlin
+          - columnar-java
+        default: java
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository_owner }}/${{ inputs.sdk }}-fit-performer
+
+    steps:
+      - name: Set SANITIZED_IMAGE_TAG
+        env:
+          ref: "${{ inputs.ref }}"
+        run: |
+          echo "SANITIZED_IMAGE_TAG=${ref/\//-}" >> $GITHUB_ENV
+
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          repository: 'https://review.couchbase.org/couchbase-jvm-clients'
+          ref: ${{ inputs.ref }}
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          build-args: SDK=${{ inputs.sdk }}
+          push: true
+          tags: ${{ env.SANITIZED_IMAGE_TAG }}
+          labels: ${{ steps.meta.outputs.labels }}
