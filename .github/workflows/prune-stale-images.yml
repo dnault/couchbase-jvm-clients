@@ -1,0 +1,41 @@
+name: Publish FIT performer on demand
+
+on:
+  workflow_dispatch:
+    inputs:
+      sdk:
+        type: choice
+        description: SDK
+        required: true
+        options:
+          - java
+          - scala
+          - kotlin
+          - columnar-java
+        default: java
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      IMAGE_TAG_PREFIX: tmp- # images with this prefix are
+
+    steps:
+      - name: Prune old temporary images
+        uses: vlaurin/action-ghcr-prune@0cf7d39f88546edd31965acba78cdcb0be14d641 # v0.6.0
+#        uses: vlaurin/action-ghcr-prune@v0.6.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          organization: ${{ github.repository_owner }}
+          container: ${{ inputs.sdk }}-fit-performer
+          dry-run: true # Dry-run first, then change to `false`
+#          keep-younger-than: 14 # days
+          prune-tags-regexes: |
+            ^ref-
+            ^${{ env.IMAGE_TAG_PREFIX }}
+
+  #0cf7d39f88546edd31965acba78cdcb0be14d641
