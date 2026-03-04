@@ -19,7 +19,7 @@
         <!-- This must be built externally -->
         <dependency>
             <groupId>com.couchbase.client</groupId>
-            <artifactId>fit-grpc</artifactId>
+            <artifactId>fit-protocol</artifactId>
             <!-- The SNAPSHOT here should not be removed. This package is internal to FIT and will never release -->
             <version>1.0-SNAPSHOT</version>
         </dependency>
