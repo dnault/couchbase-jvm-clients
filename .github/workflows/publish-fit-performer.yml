@@ -18,7 +18,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-      id-token: write
 
     strategy:
       matrix:
@@ -71,4 +70,3 @@ jobs:
           package-type: 'container'
           package-name: ${{ matrix.sdk }}-fit-performer
           delete-only-untagged-versions: 'true'
-          min-versions-to-keep: 15
