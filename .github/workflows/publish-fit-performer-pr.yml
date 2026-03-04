@@ -36,6 +36,7 @@ jobs:
         run: |      
           REF="${{ inputs.ref }}"
           IMAGE_TAG="${REF//\//-}"
+          echo "Image tag will be $IMAGE_TAG" 
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Check out Gerrit patch set
