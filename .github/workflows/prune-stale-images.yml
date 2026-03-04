@@ -1,4 +1,4 @@
-name: Prune stale FIT performer images
+name: Prune stale images
 
 on:
   schedule:
