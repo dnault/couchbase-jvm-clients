@@ -40,8 +40,8 @@ jobs:
 
       - name: Check out Gerrit patch set
         run: |
-          git clone --depth 1 https://review.couchbase.org/couchbase-jvm-clients .
-          git fetch --depth 1 ${{ inputs.ref }}
+          git clone --depth 1 --no-checkout https://review.couchbase.org/couchbase-jvm-clients .
+          git fetch --depth 1 origin ${{ inputs.ref }}
           git checkout FETCH_HEAD
 
       - name: Log in to the Container registry
