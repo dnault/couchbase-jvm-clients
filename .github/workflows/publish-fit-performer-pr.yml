@@ -1,13 +1,13 @@
-name: Publish FIT performer from PR
+name: Publish FIT performer on demand
 
-run-name: "Publish ${{ inputs.sdk }}-fit-performer:${{ inputs.ref }}"
+run-name: "${{ inputs.sdk }} @ ${{ inputs.ref }}"
 
 on:
   workflow_dispatch:
     inputs:
       ref:
         type: string
-        description: "Gerrit patch set ref, like: refs/changes/58/240858/6"
+        description: "Full commit hash, or Gerrit patch set ref like: refs/changes/58/240858/6"
         required: true
 
       # Could use a matrix to build them all, but probably only care about one.
@@ -33,12 +33,14 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository_owner }}/${{ inputs.sdk }}-fit-performer
       GERRIT_REPO_URL: https://review.couchbase.org/couchbase-jvm-clients
+      IMAGE_TAG_PREFIX: tmp- # images with this prefix are
 
     steps:
-      - name: Set IMAGE_TAG from ref (replace slashes with dashes)
+      - name: Set IMAGE_TAG from ref
+        # replace all slashes with dashes
         run: |      
           REF="${{ inputs.ref }}"
-          IMAGE_TAG="${REF//\//-}"
+          IMAGE_TAG="${{ env.IMAGE_TAG_PREFIX}}${REF//\//-}"
           echo "Image tag will be $IMAGE_TAG" 
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
@@ -65,6 +67,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: type=raw,value=${{ env.IMAGE_TAG }}
+          # Override some labels because the source came from an external repository
           labels: |
             org.opencontainers.image.source=${{ env.GERRIT_REPO_URL }}
             org.opencontainers.image.revision=${{ env.COMMIT_HASH }}
@@ -82,7 +85,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Write job summary
+      - name: Write fully qualified image name to job summary
         run: |
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo '${{ steps.meta.outputs.tags }}' >> $GITHUB_STEP_SUMMARY
