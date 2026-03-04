@@ -36,9 +36,16 @@ jobs:
         run: |      
           REF="${{ inputs.ref }}"
           IMAGE_TAG="${REF//\//-}"
-          echo "Image tag will be $IMAGE_TAG" 
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
+      - name: Set IMAGE_FULL_NAME
+        run: |
+          IMAGE_FULL_NAME=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          echo "$IMAGE_FULL_NAME" 
+          echo "IMAGE_FULL_NAME=$IMAGE_FULL_NAME" >> $GITHUB_ENV
+
+      # This would be easier for native GitHub repos, which can use
+      # `actions/checkout` and specify the ref.
       - name: Check out Gerrit patch set
         run: |
           git clone --depth 1 --no-checkout https://review.couchbase.org/couchbase-jvm-clients .
@@ -65,5 +72,9 @@ jobs:
           context: .
           build-args: SDK=${{ inputs.sdk }}
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          tags: ${{ env.IMAGE_FULL_NAME }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Write job summary
+        run: |
+          echo "🐳 ${{ env.IMAGE_FULL_NAME }}" >> $GITHUB_STEP_SUMMARY
