@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Set IMAGE_TAG from ref (replace slashes with dashes)
         run: |      
-          REF="${{ trim(inputs.ref) }}"
+          REF="${{ inputs.ref }}"
           IMAGE_TAG="${REF//\//-}"
           echo "Image tag will be $IMAGE_TAG" 
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
@@ -74,4 +74,4 @@ jobs:
 
       - name: Write job summary
         run: |
-          echo '🐳 `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}`' >> $GITHUB_STEP_SUMMARY
+          echo '🐳 `${{ steps.meta.outputs.tags }}`' >> $GITHUB_STEP_SUMMARY
