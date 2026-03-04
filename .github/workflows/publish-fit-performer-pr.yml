@@ -43,6 +43,8 @@ jobs:
           git clone --depth 1 --no-checkout https://review.couchbase.org/couchbase-jvm-clients .
           git fetch --depth 1 origin ${{ inputs.ref }}
           git checkout FETCH_HEAD
+          git log --max-count=1
+          echo image tag is ${{ env.SANITIZED_IMAGE_TAG }}
 
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
@@ -57,11 +59,17 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
-        with:
-          context: .
-          build-args: SDK=${{ inputs.sdk }}
-          push: true
-          tags: ${{ env.SANITIZED_IMAGE_TAG }}
-          labels: ${{ steps.meta.outputs.labels }}
+      - name: inspect meta tags
+        run: |
+          echo tags from meta
+          echo ${{ steps.meta.outputs.tags }}
+
+
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+#        with:
+#          context: .
+#          build-args: SDK=${{ inputs.sdk }}
+#          push: true
+#          tags: ${{ env.SANITIZED_IMAGE_TAG }}
+#          labels: ${{ steps.meta.outputs.labels }}
