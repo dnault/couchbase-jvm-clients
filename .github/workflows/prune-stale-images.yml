@@ -1,42 +1,28 @@
 name: Prune stale FIT performer images
 
 on:
+  schedule:
+    - cron: '43 3 * * *'
   workflow_dispatch:
-    inputs:
-      sdk:
-        type: choice
-        description: SDK
-        required: true
-        options:
-          - java
-          - scala
-          - kotlin
-          - columnar-java
-        default: java
 
 jobs:
   prune:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
       packages: write
 
-    env:
-      IMAGE_TAG_PREFIX: tmp- # images with this prefix are
+    strategy:
+      matrix:
+        sdk: [ java, kotlin, scala, columnar-java ]
 
     steps:
       - name: Prune old temporary images
         uses: vlaurin/action-ghcr-prune@0cf7d39f88546edd31965acba78cdcb0be14d641 # v0.6.0
-#        uses: vlaurin/action-ghcr-prune@v0.6.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 #          organization: ${{ github.repository_owner }}
           user: ${{ github.repository_owner }}
-          container: ${{ inputs.sdk }}-fit-performer
-          dry-run: true # Dry-run first, then change to `false`
-#          keep-younger-than: 14 # days
+          container: ${{ matrix.sdk }}-fit-performer
+          keep-younger-than: 14 # days
           prune-tags-regexes: |
-            ^refs-
-            ^${{ env.IMAGE_TAG_PREFIX }}
-
-  #0cf7d39f88546edd31965acba78cdcb0be14d641
+            ^tmp-

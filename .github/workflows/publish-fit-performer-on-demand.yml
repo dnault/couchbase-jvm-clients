@@ -33,7 +33,7 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository_owner }}/${{ inputs.sdk }}-fit-performer
       GERRIT_REPO_URL: https://review.couchbase.org/couchbase-jvm-clients
-      IMAGE_TAG_PREFIX: tmp- # images with this prefix are
+      IMAGE_TAG_PREFIX: tmp- # indicates the image may be pruned after some time
 
     steps:
       - name: Set IMAGE_TAG from ref
