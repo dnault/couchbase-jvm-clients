@@ -72,7 +72,9 @@ jobs:
           build-args: SDK=${{ inputs.sdk }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: |
+            ${{ steps.meta.outputs.labels }}
+            "org.opencontainers.image.authors"=${{ github.actor }}
 
       - name: Write job summary
         run: |
