@@ -1,5 +1,7 @@
 name: Publish FIT performer from PR
 
+run-name: Publish ${{ inputs.sdk }} @ ${{ inputs.ref }}
+
 on:
   workflow_dispatch:
     inputs:
@@ -63,6 +65,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: type=raw,value=${{ env.IMAGE_TAG }}
+          labels: |
+            org.opencontainers.image.source=${{ env.GERRIT_REPO_URL }}
+            org.opencontainers.image.revision=${{ env.COMMIT_HASH }}
+            com.couchbase.github.actions.run=https://github.com/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}
           flavor: |
             latest=false
 
@@ -74,11 +80,7 @@ jobs:
           build-args: SDK=${{ inputs.sdk }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: |
-            ${{ steps.meta.outputs.labels }}
-            org.opencontainers.image.authors=PR image requested by ${{ github.actor }}
-            org.opencontainers.image.source=${{ env.GERRIT_REPO_URL }}
-            org.opencontainers.image.revision=${{ env.COMMIT_HASH }}            
+          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Write job summary
         run: |
