@@ -36,7 +36,7 @@ jobs:
           dry-run: true # Dry-run first, then change to `false`
 #          keep-younger-than: 14 # days
           prune-tags-regexes: |
-            ^ref-
+            ^refs-
             ^${{ env.IMAGE_TAG_PREFIX }}
 
   #0cf7d39f88546edd31965acba78cdcb0be14d641
