@@ -49,6 +49,8 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=false
 
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`.
       # If the build succeeds, it pushes the image to GitHub Packages.
@@ -68,7 +70,10 @@ jobs:
 
       - name: Write job summary
         run: |
-          echo '🐳 `${{ steps.meta.outputs.tags }}`' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.meta.outputs.tags }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+        #          echo '🐳 `${{ steps.meta.outputs.tags }}`' >> $GITHUB_STEP_SUMMARY
 
       - name: Delete old packages
         uses: actions/delete-package-versions@v5
@@ -76,3 +81,4 @@ jobs:
           package-type: 'container'
           package-name: ${{ matrix.sdk }}-fit-performer
           delete-only-untagged-versions: 'true'
+          min-versions-to-keep: 0
