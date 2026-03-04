@@ -32,21 +32,18 @@ jobs:
       IMAGE_NAME: ${{ github.repository_owner }}/${{ inputs.sdk }}-fit-performer
 
     steps:
-      - name: Set IMAGE_TAG from ref
-        env:
-          ref: "${{ inputs.ref }}"
+      - name: Set IMAGE_TAG from ref (replace slashes with dashes)
         run: |      
           REF="${{ inputs.ref }}"
           IMAGE_TAG="${REF//\//-}"
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-        
+
       - name: Check out Gerrit patch set
         run: |
           git clone --depth 1 --no-checkout https://review.couchbase.org/couchbase-jvm-clients .
           git fetch --depth 1 origin ${{ inputs.ref }}
           git checkout FETCH_HEAD
           git log --max-count=1
-          echo image tag is ${{ env.IMAGE_TAG }}
 
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
@@ -61,18 +58,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: inspect meta tags
-        run: |
-          echo tags from meta
-          echo ${{ steps.meta.outputs.tags }}
-          echo ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          
-
-#      - name: Build and push Docker image
-#        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
-#        with:
-#          context: .
-#          build-args: SDK=${{ inputs.sdk }}
-#          push: true
-#          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-#          labels: ${{ steps.meta.outputs.labels }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          build-args: SDK=${{ inputs.sdk }}
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          labels: ${{ steps.meta.outputs.labels }}
