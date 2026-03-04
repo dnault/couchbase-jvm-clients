@@ -74,7 +74,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: |
             ${{ steps.meta.outputs.labels }}
-            "org.opencontainers.image.authors"=${{ github.actor }}
+            "org.opencontainers.image.authors"="${{ github.actor }}"
 
       - name: Write job summary
         run: |
