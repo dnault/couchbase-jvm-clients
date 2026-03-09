@@ -39,9 +39,9 @@ jobs:
       - run: echo "SDK_REPO_SHORT_NAME=`basename ${{ github.repository }}`" >> $GITHUB_ENV
       - run: echo "GERRIT_REPO_URL=${{env.GERRIT_BASE_URL}}/${{env.SDK_REPO_SHORT_NAME}}" >> $GITHUB_ENV
 
-      # Gerrit PR ref is like "refs/changes/69/241369/1". Build the URL using the part after the third slash ("241369/1").
-      - run: echo "MAYBE_PR_LABEL=com.couchbase.pr=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/${REF#*/*/*/}" >> $GITHUB_ENV
-        if: contains(inputs.ref, '/') # Don't set the MAYBE_PR_LABEL variable if this doesn't look like a Gerrit PR
+      - name: Reconstruct Gerrit PR URL from last two components of ref (everything after third slash)
+        run: echo "MAYBE_PR_LABEL=com.couchbase.pr=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/${REF#*/*/*/}" >> $GITHUB_ENV
+        if: contains(inputs.ref, '/') # Don't set MAYBE_PR_LABEL if this doesn't look like a Gerrit PR
         env:
           REF: ${{ inputs.ref }}
 
@@ -68,7 +68,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: type=raw,value=${{ env.IMAGE_TAG_PREFIX }}${{ inputs.ref }}
           flavor: latest=false
-          # Override source and revision because the source came from an external repository
+          # Override source and revision because the source came from an external repository.
           labels: |
             org.opencontainers.image.source=${{env.GERRIT_BASE_URL}}/admin/repos/${{env.SDK_REPO_SHORT_NAME}}
             org.opencontainers.image.revision=${{ env.COMMIT_HASH }}
