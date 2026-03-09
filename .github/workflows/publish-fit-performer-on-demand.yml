@@ -37,13 +37,13 @@ jobs:
       SDK_REPO_SHORT_NAME: couchbase-jvm-clients
 
     steps:
-      - name: Assemble Gerrit URLs
-        run: |
-          echo "GERRIT_REPO_URL=${{env.GERRIT_BASE_URL}}/${{env.SDK_REPO_SHORT_NAME}}" >> $GITHUB_ENV
-          REF="${{ inputs.ref }}"
-          SUFFIX="${REF#*/*/*/}"
-          GERRIT_PATCH_SET_URL="${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/$SUFFIX"
-          echo "GERRIT_PATCH_SET_URL=$GERRIT_PATCH_SET_URL" >> $GITHUB_ENV
+      - run: echo "GERRIT_REPO_URL=${{env.GERRIT_BASE_URL}}/${{env.SDK_REPO_SHORT_NAME}}" >> $GITHUB_ENV
+
+      # Gerrit PR ref is like "refs/changes/69/241369/1". Build the URL using the part after the third slash ("241369/1").
+      - run: echo "GERRIT_PATCH_SET_URL=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/${REF#*/*/*/}" >> $GITHUB_ENV
+        if: contains(inputs.ref, '/')
+        env:
+          REF: ${{ inputs.ref }}
 
       # This would be easier for native GitHub repos, which can use
       # `actions/checkout` and specify the ref.
