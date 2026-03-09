@@ -79,7 +79,8 @@ jobs:
 
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        uses: docker/build-push-action@v7
+#        f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           context: .
           build-args: SDK=${{ inputs.sdk }}
@@ -87,17 +88,17 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Write fully qualified image name to job summary
-        run: |
-          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
-          ```
-          ${{ steps.meta.outputs.tags }}
-          ```
-          <details>
-          <summary>Metadata</summary>
-          
-          ```json
-          ${{ steps.push.outputs.metadata }}
-          ```
-          </details>
-          EOF
+#      - name: Write fully qualified image name to job summary
+#        run: |
+#          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+#          ```
+#          ${{ steps.meta.outputs.tags }}
+#          ```
+#          <details>
+#          <summary>Metadata</summary>
+#
+#          ```json
+#          ${{ steps.push.outputs.metadata }}
+#          ```
+#          </details>
+#          EOF
