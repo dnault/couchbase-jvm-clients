@@ -91,6 +91,7 @@ jobs:
           context: .
           build-args: SDK=${{ inputs.sdk }}
           push: true
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Write fully qualified image name to job summary
