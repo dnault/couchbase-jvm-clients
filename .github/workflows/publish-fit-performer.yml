@@ -24,7 +24,7 @@ jobs:
 
     strategy:
       matrix:
-        sdk: [ java, kotlin, scala, columnar-java ]
+        sdk: [ java, scala, kotlin, columnar-java ]
 
     env:
       REGISTRY: ghcr.io
