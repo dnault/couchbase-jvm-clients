@@ -16,7 +16,7 @@ jobs:
         sdk: [ java, kotlin, scala, columnar-java ]
 
     steps:
-      - name: Prune stale images
+      - name: Prune old temporary images
         uses: vlaurin/action-ghcr-prune@0cf7d39f88546edd31965acba78cdcb0be14d641 # v0.6.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -24,6 +24,13 @@ jobs:
           user: ${{ github.repository_owner }}
           container: ${{ matrix.sdk }}-fit-performer
           keep-younger-than: 7 # days
+          prune-tags-regexes: ^tmp-
+
+      - name: Prune untagged images
+        uses: vlaurin/action-ghcr-prune@0cf7d39f88546edd31965acba78cdcb0be14d641 # v0.6.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          #          organization: ${{ github.repository_owner }}
+          user: ${{ github.repository_owner }}
+          container: ${{ matrix.sdk }}-fit-performer
           prune-untagged: true
-          prune-tags-regexes: |
-            ^tmp-
