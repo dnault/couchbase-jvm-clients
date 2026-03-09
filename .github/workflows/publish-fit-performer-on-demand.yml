@@ -34,20 +34,18 @@ jobs:
       IMAGE_NAME: ${{ github.repository_owner }}/${{ inputs.sdk }}-fit-performer
       IMAGE_TAG_PREFIX: tmp- # indicates the image may be pruned after some time
       GERRIT_BASE_URL: https://review.couchbase.org
-      SDK_REPO_SHORT_NAME: couchbase-jvm-clients
 
     steps:
+      - run: echo "SDK_REPO_SHORT_NAME=`basename ${{ github.repository }}` >> $GITHUB_ENV
       - run: echo "GERRIT_REPO_URL=${{env.GERRIT_BASE_URL}}/${{env.SDK_REPO_SHORT_NAME}}" >> $GITHUB_ENV
 
       # Gerrit PR ref is like "refs/changes/69/241369/1". Build the URL using the part after the third slash ("241369/1").
-      - run: |
-          echo "MAYBE_PR_LABEL=com.couchbase.pr=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/${REF#*/*/*/}" >> $GITHUB_ENV
-        if: contains(inputs.ref, '/')
+      - run: echo "MAYBE_PR_LABEL=com.couchbase.pr=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/${REF#*/*/*/}" >> $GITHUB_ENV
+        if: contains(inputs.ref, '/') # Don't set the MAYBE_PR_LABEL variable if this doesn't look like a Gerrit PR
         env:
           REF: ${{ inputs.ref }}
 
-      # This would be easier for native GitHub repos, which can use
-      # `actions/checkout` and specify the ref.
+      # This would be easier for native GitHub repos, which can use `actions/checkout` and specify the ref.
       - name: Check out Gerrit patch set
         run: |
           git clone --depth 1 --no-checkout ${{ env.GERRIT_REPO_URL }} .
@@ -69,14 +67,13 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: type=raw,value=${{ env.IMAGE_TAG_PREFIX }}${{ inputs.ref }}
-          # Override some labels because the source came from an external repository
+          flavor: latest=false
+          # Override source and revision because the source came from an external repository
           labels: |
             org.opencontainers.image.source=${{env.GERRIT_BASE_URL}}/admin/repos/${{env.SDK_REPO_SHORT_NAME}}
             org.opencontainers.image.revision=${{ env.COMMIT_HASH }}
             com.couchbase.github.actions.run=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
             ${{ env.MAYBE_PR_LABEL }}
-          flavor: |
-            latest=false
 
       - name: Build and push Docker image
         id: push
@@ -88,5 +85,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Write fully qualified image name to job summary
-        run: echo '```${{ steps.meta.outputs.tags }}```' >> $GITHUB_STEP_SUMMARY
+      - run: echo '```${{ steps.meta.outputs.tags }}```' >> $GITHUB_STEP_SUMMARY
