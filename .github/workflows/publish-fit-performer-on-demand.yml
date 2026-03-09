@@ -88,5 +88,5 @@ jobs:
 
       - name: Write job summary
         run: |
-          echo '🐳 `${{ steps.meta.outputs.tags }}` >> $GITHUB_STEP_SUMMARY
+          echo '🔖 `${{ steps.meta.outputs.tags }}`' >> $GITHUB_STEP_SUMMARY
           echo '📌 `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.push.outputs.digest }}`' >> $GITHUB_STEP_SUMMARY 
