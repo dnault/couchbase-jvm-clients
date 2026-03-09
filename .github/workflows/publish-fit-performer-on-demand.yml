@@ -36,8 +36,11 @@ jobs:
       GERRIT_BASE_URL: https://review.couchbase.org
 
     steps:
-      - run: echo "SDK_REPO_SHORT_NAME=`basename ${{ github.repository }}`" >> $GITHUB_ENV
-      - run: echo "GERRIT_REPO_URL=${{env.GERRIT_BASE_URL}}/${{env.SDK_REPO_SHORT_NAME}}" >> $GITHUB_ENV
+      - name: Determine GitHub repository name (without organization)
+        run: echo "SDK_REPO_SHORT_NAME=`basename ${{ github.repository }}`" >> $GITHUB_ENV
+
+      - name: Determine Gerrit repository URL
+        run: echo "GERRIT_REPO_URL=${{env.GERRIT_BASE_URL}}/${{env.SDK_REPO_SHORT_NAME}}" >> $GITHUB_ENV
 
       - name: Reconstruct Gerrit PR URL from last two components of ref (everything after third slash)
         run: echo "MAYBE_PR_LABEL=com.couchbase.pr=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/${REF#*/*/*/}" >> $GITHUB_ENV
@@ -45,8 +48,8 @@ jobs:
         env:
           REF: ${{ inputs.ref }}
 
-      # This would be easier for native GitHub repos, which can use `actions/checkout` and specify the ref.
       - name: Check out Gerrit patch set
+        # This would be easier for native GitHub repos, which can use `actions/checkout` and specify the ref.
         run: |
           git clone --depth 1 --no-checkout ${{ env.GERRIT_REPO_URL }} .
           git fetch --depth 1 origin ${{ inputs.ref }}
