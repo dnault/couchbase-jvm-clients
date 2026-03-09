@@ -34,13 +34,14 @@ jobs:
       IMAGE_NAME: ${{ github.repository_owner }}/${{ inputs.sdk }}-fit-performer
       IMAGE_TAG_PREFIX: tmp- # indicates the image may be pruned after some time
       GERRIT_BASE_URL: https://review.couchbase.org
+      GERRIT_REPO_NAME: ${{ github.event.repository.name }} # same as GitHub repo name (without owner)
 
     steps:
       - name: Determine Gerrit repository URL
-        run: echo "GERRIT_REPO_URL=${{env.GERRIT_BASE_URL}}/${{ github.event.repository.name }}" >> $GITHUB_ENV
+        run: echo "GERRIT_REPO_URL=${{env.GERRIT_BASE_URL}}/${{ env.GERRIT_REPO_NAME }}" >> $GITHUB_ENV
 
       - name: Reconstruct Gerrit PR URL from last two components of ref (everything after third slash)
-        run: echo "MAYBE_PR_LABEL=com.couchbase.pr=${{env.GERRIT_BASE_URL}}/c/${{ github.event.repository.name }}/+/${REF#*/*/*/}" >> $GITHUB_ENV
+        run: echo "MAYBE_PR_LABEL=com.couchbase.pr=${{env.GERRIT_BASE_URL}}/c/${{ env.GERRIT_REPO_NAME }}/+/${REF#*/*/*/}" >> $GITHUB_ENV
         if: contains(inputs.ref, '/') # Don't set MAYBE_PR_LABEL if this doesn't look like a Gerrit PR
         env:
           REF: ${{ inputs.ref }}
@@ -70,9 +71,9 @@ jobs:
           flavor: latest=false
           # Override source and revision because the source came from an external repository.
           labels: |
-            org.opencontainers.image.source=${{env.GERRIT_BASE_URL}}/admin/repos/${{env.SDK_REPO_SHORT_NAME}}
+            org.opencontainers.image.source=${{ env.GERRIT_BASE_URL }}/admin/repos/${{ env.GERRIT_REPO_NAME }}
             org.opencontainers.image.revision=${{ env.COMMIT_HASH }}
-            com.couchbase.github.actions.run=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            com.couchbase.github.actions.run=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             ${{ env.MAYBE_PR_LABEL }}
 
       - name: Build and push Docker image
@@ -86,4 +87,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Write job summary
-        run: echo '🐳 `${{ steps.meta.outputs.tags }}`' >> $GITHUB_STEP_SUMMARY
+        run: echo '🐳 `${{ steps.meta.outputs.tags }} / `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.push.outputs.digest }}`' >> $GITHUB_STEP_SUMMARY
+
