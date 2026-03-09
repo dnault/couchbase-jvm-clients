@@ -36,12 +36,21 @@ jobs:
       SDK_REPO_SHORT_NAME: couchbase-jvm-clients
 
     steps:
+      - name: Set IMAGE_TAG from ref
+        # replace all slashes with dashes
+        run: |
+          REF="${{ inputs.ref }}"
+          IMAGE_TAG="${{ env.IMAGE_TAG_PREFIX}}${REF//\//-}"
+          echo "Image tag will be $IMAGE_TAG" 
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
       - name: Assemble Gerrit URLs
         run: |
           echo "GERRIT_REPO_URL=${{env.GERRIT_BASE_URL}}/${{env.SDK_REPO_SHORT_NAME}}" >> $GITHUB_ENV
           REF="${{ inputs.ref }}"
           SUFFIX="${REF#*/*/*/}"
-          echo "GERRIT_PATCH_SET_URL=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/$SUFFIX" >> $GITHUB_ENV
+          GERRIT_PATCH_SET_URL="${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/$SUFFIX"
+          echo "GERRIT_PATCH_SET_URL=$GERRIT_PATCH_SET_URL" >> $GITHUB_ENV
 
       # This would be easier for native GitHub repos, which can use
       # `actions/checkout` and specify the ref.
@@ -65,6 +74,7 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: type=raw,value=${{ env.IMAGE_TAG }}
           # Override some labels because the source came from an external repository
           labels: |
             org.opencontainers.image.source=${{ env.GERRIT_REPO_URL }}
@@ -86,6 +96,10 @@ jobs:
       - name: Write fully qualified image name to job summary
         run: |
           echo '```' >> $GITHUB_STEP_SUMMARY
-          echo '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.push.outputs.digest }}' >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.meta.outputs.tags }}' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+          
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.push.outputs.digest }}' >> $GITHUB_STEP_SUMMARY
           echo '${{ steps.push.outputs.imageid }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

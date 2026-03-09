@@ -25,3 +25,5 @@ jobs:
           container: ${{ matrix.sdk }}-fit-performer
           keep-younger-than: 7 # days
           prune-untagged: true
+          prune-tags-regexes: |
+            ^tmp-
