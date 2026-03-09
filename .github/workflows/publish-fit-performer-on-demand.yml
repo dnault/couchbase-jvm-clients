@@ -41,7 +41,6 @@ jobs:
 
       # Gerrit PR ref is like "refs/changes/69/241369/1". Build the URL using the part after the third slash ("241369/1").
       - run: |
-#          echo "GERRIT_PATCH_SET_URL=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/${REF#*/*/*/}" >> $GITHUB_ENV
           echo "MAYBE_PR_LABEL=com.couchbase.pr=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/${REF#*/*/*/}" >> $GITHUB_ENV
         if: contains(inputs.ref, '/')
         env:
