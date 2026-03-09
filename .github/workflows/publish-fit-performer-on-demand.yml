@@ -36,17 +36,11 @@ jobs:
       GERRIT_BASE_URL: https://review.couchbase.org
 
     steps:
-      - run: |
-            echo ${{ github.event.repository.name }}
-
-      - name: Determine GitHub repository name (without organization)
-        run: echo "SDK_REPO_SHORT_NAME=`basename ${{ github.repository }}`" >> $GITHUB_ENV
-
       - name: Determine Gerrit repository URL
-        run: echo "GERRIT_REPO_URL=${{env.GERRIT_BASE_URL}}/${{env.SDK_REPO_SHORT_NAME}}" >> $GITHUB_ENV
+        run: echo "GERRIT_REPO_URL=${{env.GERRIT_BASE_URL}}/${{ github.event.repository.name }}" >> $GITHUB_ENV
 
       - name: Reconstruct Gerrit PR URL from last two components of ref (everything after third slash)
-        run: echo "MAYBE_PR_LABEL=com.couchbase.pr=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/${REF#*/*/*/}" >> $GITHUB_ENV
+        run: echo "MAYBE_PR_LABEL=com.couchbase.pr=${{env.GERRIT_BASE_URL}}/c/${{ github.event.repository.name }}/+/${REF#*/*/*/}" >> $GITHUB_ENV
         if: contains(inputs.ref, '/') # Don't set MAYBE_PR_LABEL if this doesn't look like a Gerrit PR
         env:
           REF: ${{ inputs.ref }}
