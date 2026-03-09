@@ -59,4 +59,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Write job summary
-        run: echo '```${{ steps.meta.outputs.tags }}```' >> $GITHUB_STEP_SUMMARY
+        run: |
+          echo << `EOL' >> $GITHUB_STEP_SUMMARY
+          ```
+          ${{ steps.meta.outputs.tags }}
+          ```
+          EOL
