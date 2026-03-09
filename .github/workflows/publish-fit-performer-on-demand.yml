@@ -36,6 +36,9 @@ jobs:
       GERRIT_BASE_URL: https://review.couchbase.org
 
     steps:
+      - run: |
+            echo ${{ github.event.repository.name }}
+
       - name: Determine GitHub repository name (without organization)
         run: echo "SDK_REPO_SHORT_NAME=`basename ${{ github.repository }}`" >> $GITHUB_ENV
 
