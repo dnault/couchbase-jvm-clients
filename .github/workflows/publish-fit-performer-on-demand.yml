@@ -85,5 +85,5 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Display fully-qualified image name
+      - name: Write job summary
         run: echo '```${{ steps.meta.outputs.tags }}```' >> $GITHUB_STEP_SUMMARY
