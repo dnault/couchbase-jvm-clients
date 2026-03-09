@@ -89,15 +89,15 @@ jobs:
 
       - name: Write fully qualified image name to job summary
         run: |
-          echo '```${{ steps.meta.outputs.tags }}```' >> $GITHUB_STEP_SUMMARY
-          
           cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          ```
+          ${{ steps.meta.outputs.tags }}
+          ```
           <details>
           <summary>Metadata</summary>
           
           ```json
           ${{ steps.push.outputs.metadata }}
           ```
-          
           </details>
           EOF
