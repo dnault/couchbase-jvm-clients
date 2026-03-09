@@ -95,8 +95,10 @@ jobs:
           
           echo '<details>' >> $GITHUB_STEP_SUMMARY        
           echo '<summary>Metadata</summary>' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo '${{ steps.push.outputs.metadata }})' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
           echo '</details>' >> $GITHUB_STEP_SUMMARY
           
