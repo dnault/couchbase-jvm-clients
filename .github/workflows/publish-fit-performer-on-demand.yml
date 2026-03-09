@@ -42,7 +42,7 @@ jobs:
       # Gerrit PR ref is like "refs/changes/69/241369/1". Build the URL using the part after the third slash ("241369/1").
       - run: |
 #          echo "GERRIT_PATCH_SET_URL=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/${REF#*/*/*/}" >> $GITHUB_ENV
-          echo "PR_LABEL=com.couchbase.pr=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/${REF#*/*/*/}" >> $GITHUB_ENV
+          echo "MAYBE_PR_LABEL=com.couchbase.pr=${{env.GERRIT_BASE_URL}}/c/${{env.SDK_REPO_SHORT_NAME}}/+/${REF#*/*/*/}" >> $GITHUB_ENV
         if: contains(inputs.ref, '/')
         env:
           REF: ${{ inputs.ref }}
@@ -75,7 +75,7 @@ jobs:
             org.opencontainers.image.source=${{env.GERRIT_BASE_URL}}/admin/repos/${{env.SDK_REPO_SHORT_NAME}}
             org.opencontainers.image.revision=${{ env.COMMIT_HASH }}
             com.couchbase.github.actions.run=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            ${{ env.PR_LABEL }}
+            ${{ env.MAYBE_PR_LABEL }}
           flavor: |
             latest=false
 
