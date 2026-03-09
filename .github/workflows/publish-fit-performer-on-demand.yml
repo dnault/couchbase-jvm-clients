@@ -36,7 +36,7 @@ jobs:
       GERRIT_BASE_URL: https://review.couchbase.org
 
     steps:
-      - run: echo "SDK_REPO_SHORT_NAME=`basename ${{ github.repository }}` >> $GITHUB_ENV
+      - run: echo "SDK_REPO_SHORT_NAME=`basename ${{ github.repository }}`" >> $GITHUB_ENV
       - run: echo "GERRIT_REPO_URL=${{env.GERRIT_BASE_URL}}/${{env.SDK_REPO_SHORT_NAME}}" >> $GITHUB_ENV
 
       # Gerrit PR ref is like "refs/changes/69/241369/1". Build the URL using the part after the third slash ("241369/1").
