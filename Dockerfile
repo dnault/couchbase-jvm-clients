@@ -21,7 +21,7 @@ ARG MVN_FLAGS="--batch-mode --no-transfer-progress -Dcheckstyle.skip -Dmaven.tes
 
 # Defer declaring the ARG until first use, so the previous layers can be cached between SDKs
 ARG SDK
-RUN #mvn $MVN_FLAGS package -Pfit --projects ${SDK}-fit-performer --also-make
+#RUN mvn $MVN_FLAGS package -Pfit --projects ${SDK}-fit-performer --also-make
 
 # Multistage build to keep things small
 FROM eclipse-temurin:21-jre-ubi10-minimal
