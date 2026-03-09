@@ -87,7 +87,7 @@ jobs:
 
       - name: Write job summary
         run: |
-          echo << `EOL' >> $GITHUB_STEP_SUMMARY
+          echo << 'EOL' >> $GITHUB_STEP_SUMMARY
           ```
           ${{ steps.meta.outputs.tags }}
           ```
