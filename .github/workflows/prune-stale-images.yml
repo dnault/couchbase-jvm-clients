@@ -23,13 +23,20 @@ jobs:
 #          organization: ${{ github.repository_owner }}
           user: ${{ github.repository_owner }}
           container: ${{ matrix.sdk }}-fit-performer
-#          keep-younger-than: 7 # days
-          # "changes" for Gerrit PR, "pull" for GitHub PR, and "sha" for arbitrary commit
-          dry-run: true
+          keep-younger-than: 7 # days
+
+          # "refs" because we only want to keep branches and tags, and we'll refer to those by simple name instead of full refs.
+          # "changes" is for Gerrit users who omit the optional "refs/" prefix from "refs/changes/...".
+          # "pull" is for GitHub.
+          # "sha" is how `actions/docker-metadata-action` formats tags for type=sha
+          # "pr" is how `actions/docker-metadata-action` formats tags for auto-detected GitHub PRs.
+          # Lowercase hex, 7 to 40 characters -> assume it's a commit hash and therefore pruneable;
+          #              woe unto those who name their branches "acceded", "defaced", or "effaced".
           prune-tags-regexes: |
             ^refs-
             ^changes-
             ^pull-
+            ^pr-
             ^sha-
             ^[0-9a-f]{7,40}$
 
