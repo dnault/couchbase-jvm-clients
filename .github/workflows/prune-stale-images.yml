@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       dry-run:
-        description: "Uncheck to actually delete images."
+        description: "Dry run (uncheck to actually delete images)"
         type: boolean
         required: false
         default: true
