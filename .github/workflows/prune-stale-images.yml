@@ -4,12 +4,21 @@ on:
   schedule:
     - cron: '43 3 * * *'
   workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Uncheck to actually delete images."
+        type: boolean
+        required: false
+        default: true
 
 jobs:
   prune:
     runs-on: ubuntu-latest
     permissions:
       packages: write
+
+    env:
+      DRY_RUN: ${{ github.event.inputs.dry-run || 'true' }}
 
     strategy:
       matrix:
@@ -23,6 +32,7 @@ jobs:
 #          organization: ${{ github.repository_owner }}
           user: ${{ github.repository_owner }}
           container: ${{ matrix.sdk }}-fit-performer
+          dry-run: ${{ env.DRY_RUN }}
           keep-younger-than: 7 # days
 
           # "refs" because we only want to keep branches and tags, and we'll refer to those by simple name instead of full refs.
@@ -47,4 +57,5 @@ jobs:
           #          organization: ${{ github.repository_owner }}
           user: ${{ github.repository_owner }}
           container: ${{ matrix.sdk }}-fit-performer
+          dry-run: ${{ env.DRY_RUN }}
           prune-untagged: true
