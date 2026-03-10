@@ -26,6 +26,7 @@ jobs:
 #          keep-younger-than: 7 # days
           # "changes" for Gerrit PR, "pull" for GitHub PR, and "sha" for arbitrary commit
           prune-tags-regexes: |
+            ^tmp-
             ^(?:refs-)changes-
             ^(?:refs-)pull-
             ^(?:sha-)?[0-9a-f]{7,40}$
