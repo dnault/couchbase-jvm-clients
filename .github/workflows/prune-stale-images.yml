@@ -31,8 +31,7 @@ jobs:
             ^changes-
             ^pull-
             ^sha-
-
-#            ^[0-9a-f]{7,40}$
+            ^[0-9a-f]{7,40}$
 
       - name: Prune untagged images
         uses: vlaurin/action-ghcr-prune@0cf7d39f88546edd31965acba78cdcb0be14d641 # v0.6.0
